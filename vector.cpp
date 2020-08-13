@@ -31,29 +31,26 @@ vector::vector(unsigned int tamanho, int inicial) {
 // NOTE  Observe que aumentar em apenas uma unidade não nos alivia da pressão que tínhamos antes...
 void vector::inserir(int elemento) {
     // TODO Reorganizar o código
-    if(tamanho < capacidade) {
-        vetor[tamanho] = elemento;
-        tamanho++;
+    if(this->tamanho < this->capacidade) {
+        this->vetor[tamanho] = elemento;
+        this->tamanho++;
     } else {
         // TODO Realocar o vetor e inserir "elemento"
         // duplicando a capacidade do novo vetor
-        int* vetorDuplicado = new int[capacidade * 2];
-        // passando os elementos do vetor anteriro para o novo vetor
-        for (unsigned int i = 0; i < tamanho; i++) {
-            vetorDuplicado[i] = vetor[1];
+        this -> vetor = (int*) realloc (this -> vetor, sizeof(int) * (this -> capacidade * 2));
+        
+        if (!this->vetor) {
+            return;
+        } else {
+            //duplicando o valor da variavel capacidade
+            this->capacidade *= 2;
+
+            //inserindo o elemento
+            this->vetor[tamanho] = elemento;
+
+            //aumentando em 1 unidade o tamanho da lista
+            this->tamanho++;
         }
-
-        //inserindo o elemento
-        vetorDuplicado[capacidade] = elemento;
-
-        //deletando o vetor anterior
-        delete[] vetor;
-        //assumindo o novo vetor
-        vetor = vetorDuplicado;
-        //aumentando o tamanho em 1 unidade
-        tamanho++;
-        //duplicando o valor da variavel capacidade
-        capacidade *= 2; 
     }
 }
 
@@ -63,22 +60,27 @@ void vector::inserir(int elemento) {
 bool vector::remover(int elemento) {
     // TODO Implementação.
     //caso pertença
-    if (pertence(elemento)) {
-        for (unsigned int i = 0; i < tamanho; i++) {
-            //caso ache o elemento
-            if (vetor[i] == elemento) {
-                for (unsigned int j = i; j < tamanho; j++) {
-                    //invertendo posiçoes ate o elemento encontrado va para ultimo
-                    int aux = vetor[j];
-                    vetor[j] = vetor[j + 1];
-                    vetor[j + 1] = aux;
-                }
-                //diminuindo tamanho em 1 unidade e eliminando o ultimo elemento
-                tamanho--;
-                return true;
-            }
-        }
+    if (this->tamanho == 0) {
         return false;
+    }
+
+    if (pertence(elemento)) {
+        //obtendo o indice do elemento que deseja remover
+        int indice = obter_indice_de(elemento);
+
+        //caso o elemento nao seja encontrado na funçao anterior
+        if (indice == std::numeric_limits<unsigned int>::max()) {
+            return false;
+        } else {
+            //caso seja
+            for (unsigned int i = (indice + 1); i < this->tamanho; i++) {
+                //voltando 1 casa de cada elemento a partir do indice para remover o elemento desejado
+                this->vetor[i - 1] = this->vetor[i];
+            }
+
+            this->tamanho--;
+            return true;
+        }
     } else {
         return false;
     }
@@ -87,15 +89,19 @@ bool vector::remover(int elemento) {
 // Determinar se "elemento" é um dos elementos ainda na coleção.
 bool vector::pertence(int elemento) {
     // TODO Implementação.
-    ///percorrendo o vetor
-    for (unsigned int i = 0; i < tamanho; i++) {
-        //caso ache o vator
-        if (vetor[i] == elemento) {
+    if (this->tamanho == 0) {
+        return false;
+    }
+
+    //percorrendo vetor
+    for (unsigned int i = 0; i < this->tamanho; i++) {
+        //caso encontre o elemento
+        if (this->vetor[i] == elemento) {
             return true;
         }
     }
 
-    //caso nao ache
+    // caso nao encontre
     return false;
 }
 
@@ -107,32 +113,38 @@ bool vector::pertence(int elemento) {
 void vector::inserir_em(unsigned int indice, int elemento) {
     // TODO Implementação.
     // caso o vetor esteja cheio
-    if (tamanho == capacidade) {
+    if (this->tamanho == this->capacidade) {
         return;
-    } else {
-        //caso nao esteja
-        tamanho++;
-        for (unsigned int i = tamanho - 1; i > indice; i--) {
-            //passando os elementos 1 posiçao a frente apos indice desejado
-            vetor[i + 1] = vetor[i];
-            vetor[i] = vetor[i - 1];
-        }
-        //inserindo elemento desejado
-        vetor[indice] = elemento;
     }
+
+    int copiaIndice = indice;
+    
+    for (int i = this->tamanho; i >= copiaIndice; i--) {
+        //voltando 1 casa ate chegar no indice desejado. assim liberando 1 espaço para o novo elemento
+        this->vetor[i + 1] = this->vetor[i];
+    }
+
+    //inserindo o elemento no indice
+    this->vetor[copiaIndice] = elemento;
+    //aumentando em 1 unidade o tamanho
+    this->tamanho++;
 }
 
 // Remover o elemento associado a "indice".
 // Retornar indicativo de sucesso da remoção.
 bool vector::remover_de(unsigned int indice) {
-    if(indice >= tamanho) {
+    //caso o indice seja invalido ou a lista esteja vazia
+    if (indice >= this->tamanho || this->tamanho == 0) {
         return false;
     }
 
-    for(unsigned int i = indice+1; i < tamanho; i++) {
-        vetor[i-1] = vetor[i];
+    for (unsigned int i = (indice + 1); i < this->tamanho; i++) {
+        //voltando 1 casa ate o elemento do indice para remover ele
+        this->vetor[i - 1] = this->vetor[i];
     }
-    tamanho--;
+    //diminuindo em 1 unidade o tamnho doa lista
+    this->tamanho--;
+
     return true;
 }
 
@@ -142,12 +154,12 @@ bool vector::remover_de(unsigned int indice) {
 int vector::obter_elemento_em(unsigned int indice) {
     // TODO Implementação.
     // caso o indice seja invalido(menor que zero ou maior que a quantidade de elementos)
-    if (indice <= 0 || indice >= tamanho) {
+    if (indice >= this -> tamanho || this -> tamanho == 0) {
         return std::numeric_limits<int>::max();
-    } else {
-        //caso seja valido retorna o elemento do indice desejado
-        return vetor[indice];
     }
+
+    //retorna o elemento do indice desejado
+    return this->vetor[indice];
 }
 
 // Retornar o índice associado a "elemento".
@@ -155,14 +167,23 @@ int vector::obter_elemento_em(unsigned int indice) {
 //      (forma de obter o maior valor representável).
 unsigned int vector::obter_indice_de(int elemento) {
     // TODO Implementação.
-    //percorrendo vetor
-    for (unsigned int i = 0; i < tamanho; i++) {
-        //caso ache o elemento desejado
-        if (vetor[i] == elemento) {
-            //retorna indice
-            return i;
+    //caso a lista estaja vazia
+    if (this->tamanho == 0) {
+        return std::numeric_limits<unsigned int>::max();
+    }
+
+    //caso o elemento pertença a lista
+    if (pertence(elemento)) {
+        //percorre o vetor
+        for (unsigned int i = 0; i < this->tamanho; i++) {
+            //caso encontre o elemento
+            if (this->vetor[i] == elemento) {
+                return i;
+            }
         }
     }
 
+    //caso nao esteja na lista
     return std::numeric_limits<unsigned int>::max();
-}
+
+}    
