@@ -33,22 +33,29 @@ bool set::inserir(int elemento) {
         return true;
     } else {
         // duplicando a capacidade do novo vetor
-        this -> vetor = (int*) realloc (this -> vetor, sizeof(int) * (this -> capacidade * 2));
+        int *vetorDuplicado = new int[capacidade * 2];
         
-        if (!this->vetor) {
-            return false;
-        } else {
-            //duplicando o valor da variavel capacidade
-            this->capacidade *= 2;
-
-            //inserindo o elemento
-            this->vetor[tamanho] = elemento;
-
-            //aumentando em 1 unidade o tamanho da lista
-            this->tamanho++;
-
-            return true;
+        //passando os elemento do antigo vetor para o novo
+        for (unsigned int i = 0; i < tamanho; i++) {
+            vetorDuplicado[i] = this->vetor[i];
         }
+        
+        //inserindo o nov elemento
+        vetorDuplicado[capacidade] = elemento;
+        
+        //deletando o vetor antigo
+        delete[] vetor;
+        
+        //passando o novo vetor como principal
+        vetor = vetorDuplicado;
+        
+        //aumentando em 1 unidade a variavel que guarda o numero de elementos
+        this->tamanho++;
+        
+        //duplicando a capacidada do vetor
+        this->capacidade *= 2;
+        
+        return true;
     }
 }
 
@@ -123,14 +130,22 @@ void set::intersecao_com(set const &conjunto) {
     // TODO Implementação.
     //caso seja vazio
     if (conjunto.tamanho == 0) {
-        return;
-    }
+        tamanho = 0;
+    } else {
+        //vetor auxiliar
+        int *aux = new int[tamanho];
 
-    //percorrendo o vetor
-    for (unsigned l = 0; l < conjunto.tamanho; l++) {
-        if (!pertence(conjunto.vetor[l])) {
-            //caso o elemento nao pertença, chama a função de remover
-            remover(conjunto.vetor[l]);
+        //percorrendo vetor
+        for (unsigned int i = 0; i < tamanho; i++) {
+            //caso pertença, insere no vetor auxiliar
+            if (conjunto.pertence(vetor[i])) {
+                aux[i] = vetor[i];
+        }
+        }
+
+        //passando os elementos
+        for (unsigned int i = 0; i < tamanho; i++) {
+            vetor[i] = aux[i];
         }
     }
 }
@@ -139,20 +154,20 @@ void set::intersecao_com(set const &conjunto) {
 bool set::esta_contido_em(set const &conjunto) const {
     // TODO Implementação.
     //caso seja vazio
-    if (conjunto.tamanho == 0) {
+    if (tamanho == 0) {
         return true;
     }
 
     //variavel auxiliar
     bool contido = false;
 
-    //percorrendo o vetor
-    for (unsigned l = 0; l < conjunto.tamanho; l++) {
-        //fazendo verificação
-        if (pertence(conjunto.vetor[l])) {
+    //percorrendo vetor
+    for (unsigned l = 0; l < tamanho; l++) {
+        //caso pertença, esta contido
+        if (conjunto.pertence(vetor[l])) {
             contido = true;
         } else {
-            contido = false;
+        return false;
         }
     }
     return contido;
