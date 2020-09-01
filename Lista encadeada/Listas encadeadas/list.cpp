@@ -27,15 +27,21 @@ list::list(unsigned int tamanho, int inicial) {
 // Inserir "elemento" na coleção. Sempre deve executar a inserção.
 void list::inserir(int elemento) {
     // TODO Implementação.
-    no_encadeado* novo_no = new no_encadeado(elemento, this->primeiro);
+    if (tamanho == 0) {
+        no_encadeado* novo_no = new no_encadeado(elemento);
+        
+        this->primeiro = novo_no;
 
-    novo_no->valor = elemento;
-    
-    novo_no->proximo = this->primeiro->proximo;
-    
-    this->primeiro->proximo = novo_no;
-    
-    this->tamanho = tamanho++;
+        this->tamanho++;
+    } else {
+        no_encadeado* anterior = obter_no_em(tamanho - 1);
+        
+        no_encadeado* novo_no = new no_encadeado(elemento);
+        
+        anterior->proximo = novo_no;
+        
+        this->tamanho++;
+    }
 }
 
 // Remover "elemento" da coleção.
@@ -46,25 +52,39 @@ bool list::remover(int elemento) {
       if (this->tamanho == 0 || !pertence(elemento)) {
         return false;
     } else {
-        unsigned int indice_aux = obter_indice_de(elemento);
+        int indice = obter_indice_de(elemento);
         
-        no_encadeado* novo_no = obter_no_em(indice_aux);
+        no_encadeado* noRemovido = obter_no_em(indice);
         
-        while (novo_no->proximo != nullptr) {
-        if (novo_no->valor == elemento) {
-            novo_no->proximo = novo_no->proximo->proximo;
-            this->tamanho = tamanho--;
+        no_encadeado* noAnterior = obter_no_em(indice - 1);
+        
+        if (indice == 0) {
+            this->primeiro = noRemovido->proximo;
+            
+            delete[] noRemovido;
+            
+            this->tamanho--;
+            
+            return true;
+        } else {
+            noAnterior->proximo = noRemovido->proximo;
+            
+            delete[] noRemovido;
+            
+            this->tamanho--;
+            
             return true;
         }
-        novo_no = novo_no->proximo;
-        }
-        return false;
     }
 }
 
 // Determinar se "elemento" é um dos elementos ainda na coleção.
 bool list::pertence(int elemento) {
     // TODO Implementação.
+    if (this->tamanho == 0) {
+        return false;
+    }
+
     no_encadeado* no = this->primeiro;
     
     while (no != nullptr) {
@@ -125,7 +145,7 @@ bool list::remover_de(unsigned int indice) {
 int list::obter_elemento_em(unsigned int indice) {
     // TODO Implementação.
     if (indice > this->tamanho) {
-        std::numeric_limits<int>::max();
+        return std::numeric_limits<int>::max();
     }
 
     no_encadeado* no = obter_no_em(indice);

@@ -9,19 +9,18 @@ class ordered_list {
 
             // Construtor
             no_encadeado(int valor, no_encadeado* proximo = nullptr);
-
         };
-
-        no_encadeado* primeiro;
 
         // Contagem da quantidade de elementos presentes na lista.
         unsigned int tamanho;
+
+        // Ponteiro para o primeiro elemento da lista
+        no_encadeado* primeiro;
 
     public:
         // Construtores
         ordered_list();
         ordered_list(unsigned int tamanho, int inicial);
-        ordered_list(unsigned int capacidade);
 
         // Métodos de "Coleção"
         void inserir(int elemento);

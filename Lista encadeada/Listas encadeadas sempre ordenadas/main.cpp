@@ -5,12 +5,11 @@
 using namespace std;
 
 int main() {
-    unsigned int capacidade;
     unsigned int comandos;
     
-    cin >> capacidade >> comandos;
+    cin >> comandos;
     
-    ordered_list v(capacidade);
+    ordered_list v;
     
     while (comandos-- > 0) {
         char acao;
@@ -35,9 +34,6 @@ int main() {
                 break;
             case 't':
                 cout << v.obter_tamanho() << endl;
-                break;
-            case 'c':
-                //cout << (v.obter_capacidade() >= v.obter_tamanho()) << endl;
                 break;
             case 'R':
                 cin >> indice;
